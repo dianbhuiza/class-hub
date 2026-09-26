@@ -1,0 +1,17 @@
+{
+  "name": "class-hub",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "frontend:dev": "pnpm --filter @class-hub/frontend dev",
+    "frontend:build": "pnpm --filter @class-hub/frontend build",
+    "backend:dev": "pnpm --filter @class-hub/backend start:dev",
+    "backend:build": "pnpm --filter @class-hub/backend build"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4"
+  }
+}

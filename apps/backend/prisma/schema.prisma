@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subject {
+  id        String         @id @default(uuid())
+  name      String         @unique
+  img       String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  classes   ClassSubject[]
+}
+
+model Class {
+  id        String         @id @default(uuid())
+  title     String?
+  url       String
+  date      DateTime       @db.Date
+  week      Int
+  subjects  ClassSubject[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model ClassSubject {
+  classId   String
+  subjectId String
+  class     Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([classId, subjectId])
+}
