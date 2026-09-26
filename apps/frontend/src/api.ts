@@ -1,6 +1,6 @@
 import type { Subject, ClassItem, ClassFileInfo } from './types';
 
-const API_BASE = import.meta.env.DEV ? '/api' : 'http://localhost:3000/api';
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 export const TOKEN_KEY = 'token';
 export const UNAUTHORIZED_EVENT = 'auth:unauthorized';
