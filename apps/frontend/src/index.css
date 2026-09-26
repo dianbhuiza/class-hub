@@ -155,6 +155,13 @@ body::before {
   padding: 1.5rem 1.25rem 3rem;
 }
 
+/* El reproductor ocupa casi toda la pantalla: sin tope de ancho y con
+   margenes pequenos, para que el video se vea lo mas grande posible. */
+.main-wide {
+  max-width: none;
+  padding: 0.75rem 1rem 1.25rem;
+}
+
 /* ===== HOME ===== */
 .home-header {
   display: flex;
@@ -891,6 +898,8 @@ body::before {
   margin: 0 auto;
 }
 
+.main-wide .playlist-page { max-width: none; }
+
 .playlist-back { margin-bottom: 1rem; }
 
 .playlist-layout {
@@ -910,12 +919,17 @@ body::before {
 .playlist-main {
   flex: 1;
   min-width: 0;
+  /* Ancho del video: usa todo el disponible, pero se limita a la altura de
+     la pantalla (menos header, margen y metadatos) para que quepa entero
+     sin hacer scroll. */
+  --player-width: min(100%, calc((100dvh - 15rem) * 16 / 9));
 }
 
 .video-player {
   position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 */
+  width: var(--player-width);
+  aspect-ratio: 16 / 9;
+  margin-inline: auto;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: #000;
@@ -942,7 +956,8 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  width: 100%;
+  width: var(--player-width, 100%);
+  margin-inline: auto;
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-lg);
   background: var(--paper-dark);

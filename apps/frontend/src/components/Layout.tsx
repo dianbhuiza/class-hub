@@ -5,6 +5,7 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  const isPlaylist = location.pathname.includes('/playlist');
 
   return (
     <div className="layout">
@@ -30,7 +31,7 @@ export default function Layout() {
           )}
         </nav>
       </header>
-      <main className="main">
+      <main className={`main${isPlaylist ? ' main-wide' : ''}`}>
         <Outlet />
       </main>
     </div>
