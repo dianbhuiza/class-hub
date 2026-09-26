@@ -919,17 +919,12 @@ body::before {
 .playlist-main {
   flex: 1;
   min-width: 0;
-  /* Ancho del video: usa todo el disponible, pero se limita a la altura de
-     la pantalla (menos header, margen y metadatos) para que quepa entero
-     sin hacer scroll. */
-  --player-width: min(100%, calc((100dvh - 15rem) * 16 / 9));
 }
 
 .video-player {
   position: relative;
-  width: var(--player-width);
+  width: 100%;
   aspect-ratio: 16 / 9;
-  margin-inline: auto;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: #000;
@@ -956,8 +951,7 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  width: var(--player-width, 100%);
-  margin-inline: auto;
+  width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-lg);
   background: var(--paper-dark);
@@ -1012,6 +1006,54 @@ body::before {
   font-size: 0.85rem;
   color: var(--ink-muted);
   text-transform: capitalize;
+}
+
+@media (min-width: 960px) {
+  .layout--playlist {
+    height: 100dvh;
+  }
+
+  .main-wide {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .main-wide .playlist-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .main-wide .playlist-back {
+    flex: 0 0 auto;
+    align-self: flex-start;
+  }
+
+  .main-wide .playlist-layout {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .main-wide .playlist-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .main-wide .video-player,
+  .main-wide .video-player-error {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    aspect-ratio: auto;
+    margin-inline: 0;
+  }
+
+  .main-wide .playlist-now-playing {
+    flex: 0 0 auto;
+  }
 }
 
 /* Sidebar */

@@ -8,7 +8,7 @@ export default function Layout() {
   const isPlaylist = location.pathname.includes('/playlist');
 
   return (
-    <div className="layout">
+    <div className={`layout${isPlaylist ? ' layout--playlist' : ''}`}>
       <header className="header">
         <Link to="/" className="logo">
           <span className="logo-icon">📖</span>
