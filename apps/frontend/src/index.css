@@ -967,6 +967,54 @@ body::before {
 
 .video-player-error a:hover { text-decoration: underline; }
 
+/* Safari/iOS: en vez del iframe, acceso directo al reproductor de Drive */
+.video-player-open {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.8));
+}
+
+.video-player-open-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  padding-left: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #fff;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-gold);
+  transition: all 0.2s ease;
+}
+
+.video-player-open-label {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.video-player-open-hint {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.video-player-open:hover .video-player-open-icon {
+  background: var(--gold-light);
+  transform: scale(1.05);
+}
+
+
 .playlist-now-playing {
   display: flex;
   align-items: flex-start;

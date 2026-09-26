@@ -33,6 +33,10 @@ export default function Playlist() {
         ? cls.find((c) => c.id === initialClassId)
         : undefined;
       if (cls.length > 0) setCurrent(requested ?? cls[0]);
+    }).catch(() => {
+      setSubject(null);
+      setClasses([]);
+    }).finally(() => {
       setLoading(false);
     });
   }, [id, initialClassId]);
