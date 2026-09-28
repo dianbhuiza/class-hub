@@ -24,7 +24,10 @@ export class SubjectsService {
         classes: {
           include: {
             class: {
-              include: { subjects: { include: { subject: true } } },
+              include: {
+                subjects: { include: { subject: true } },
+                links: { orderBy: { createdAt: 'asc' } },
+              },
             },
           },
           orderBy: { class: { date: 'asc' } },

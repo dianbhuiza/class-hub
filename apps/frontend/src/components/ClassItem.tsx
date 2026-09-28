@@ -15,6 +15,7 @@ export default function ClassItem({ item, index }: ClassItemProps) {
   const sizeLabel = formatBytes(info?.sizeBytes ?? null);
   const customTitle = item.title?.trim();
   const href = info?.downloadUrl ?? directUrlFrom(item.url);
+  const links = item.links ?? [];
 
   return (
     <div className="class-item">
@@ -32,6 +33,27 @@ export default function ClassItem({ item, index }: ClassItemProps) {
         )}
         {customTitle && <p className="class-item-subjects">{customTitle}</p>}
       </div>
+      {links.length > 0 && (
+        <div className="class-item-links">
+          <span className="class-item-links-label">Links relacionados</span>
+          <ul className="class-links">
+            {links.map((link) => (
+              <li key={link.id}>
+                <a
+                  className="class-link"
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={link.url}
+                >
+                  <span className="class-link-icon" aria-hidden="true">↗</span>
+                  <span className="class-link-title">{link.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="class-item-footer">
         <a
           href={item.url}

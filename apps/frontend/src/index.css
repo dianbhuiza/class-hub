@@ -442,6 +442,65 @@ body::before {
   border-top: 1px solid var(--border);
 }
 
+/* ===== CLASS RELATED LINKS ===== */
+.class-item-links {
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.class-item-links-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-muted);
+}
+
+.class-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.class-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.class-link:hover {
+  border-color: var(--gold);
+  background: var(--gold-glow);
+  color: var(--gold);
+  transform: translateX(2px);
+}
+
+.class-link-icon {
+  color: var(--gold);
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.class-link-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
 /* ===== DOWNLOAD BUTTON ===== */
 .download-btn {
   display: inline-flex;
@@ -1057,6 +1116,72 @@ body::before {
 .admin-edit-note {
   font-size: 0.75rem;
   color: var(--ink-muted);
+}
+
+/* Links relacionados con una clase */
+.admin-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-links-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.admin-links-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-link-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s;
+}
+
+.admin-link-row:hover { border-color: var(--gold-light); }
+
+.admin-link-row a {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.admin-link-row a:hover { color: var(--gold); }
+
+.admin-link-add {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.admin-link-add input { min-width: 0; }
+
+.admin-link-add input[type="url"] { flex: 1.5; }
+.admin-link-add input[type="text"] { flex: 1; }
+
+.admin-list-links {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sage);
+  padding: 0.1rem 0.5rem;
+  border-radius: 100px;
+  background: rgba(90, 114, 71, 0.12);
+  white-space: nowrap;
 }
 
 

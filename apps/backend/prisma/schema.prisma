@@ -33,8 +33,21 @@ model Class {
   date      DateTime       @db.Date
   week      Int
   subjects  ClassSubject[]
+  links     ClassLink[]
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
+}
+
+model ClassLink {
+  id        String   @id @default(uuid())
+  classId   String
+  title     String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@index([classId])
 }
 
 model ClassSubject {

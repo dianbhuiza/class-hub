@@ -1,4 +1,4 @@
-import type { Subject, ClassItem, ClassFileInfo } from './types';
+import type { Subject, ClassItem, ClassFileInfo, ClassLink } from './types';
 
 const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
@@ -91,7 +91,13 @@ export const deleteSubject = (id: string) =>
   });
 
 export const createClass = (
-  data: { title: string; url: string; date: string; subjectIds: string[] },
+  data: {
+    title: string;
+    url: string;
+    date: string;
+    subjectIds: string[];
+    links?: { title?: string; url: string }[];
+  },
 ) =>
   request<ClassItem>('/classes', {
     method: 'POST',
@@ -109,5 +115,30 @@ export const updateClass = (
 
 export const deleteClass = (id: string) =>
   request<void>(`/classes/${id}`, {
+    method: 'DELETE',
+  });
+
+// Links relacionados con una clase
+export const createClassLink = (
+  classId: string,
+  data: { title?: string; url: string },
+) =>
+  request<ClassLink>(`/classes/${classId}/links`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateClassLink = (
+  classId: string,
+  linkId: string,
+  data: { title?: string; url?: string },
+) =>
+  request<ClassLink>(`/classes/${classId}/links/${linkId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const deleteClassLink = (classId: string, linkId: string) =>
+  request<void>(`/classes/${classId}/links/${linkId}`, {
     method: 'DELETE',
   });

@@ -2,6 +2,17 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { CreateClassLinkDto } from './dto/create-class-link.dto';
+import { UpdateClassLinkDto } from './dto/update-class-link.dto';
+
+const classInclude = {
+  subjects: {
+    include: { subject: true },
+  },
+  links: {
+    orderBy: { createdAt: 'asc' as const },
+  },
+} as const;
 
 @Injectable()
 export class ClassesService {
@@ -22,11 +33,7 @@ export class ClassesService {
 
     return this.prisma.class.findMany({
       where,
-      include: {
-        subjects: {
-          include: { subject: true },
-        },
-      },
+      include: classInclude,
       orderBy: [{ week: 'asc' }, { date: 'asc' }],
     });
   }
@@ -34,11 +41,7 @@ export class ClassesService {
   async findOne(id: string) {
     const classItem = await this.prisma.class.findUnique({
       where: { id },
-      include: {
-        subjects: {
-          include: { subject: true },
-        },
-      },
+      include: classInclude,
     });
 
     if (!classItem) {
@@ -50,6 +53,7 @@ export class ClassesService {
 
   async create(dto: CreateClassDto) {
     const week = await this.calculateWeek(new Date(dto.date));
+    const links = dto.links ?? [];
 
     return this.prisma.class.create({
       data: {
@@ -62,12 +66,14 @@ export class ClassesService {
             subject: { connect: { id: subjectId } },
           })),
         },
-      },
-      include: {
-        subjects: {
-          include: { subject: true },
+        links: {
+          create: links.map((link) => ({
+            title: link.title?.trim() || this.titleFromUrl(link.url),
+            url: link.url,
+          })),
         },
       },
+      include: classInclude,
     });
   }
 
@@ -99,11 +105,7 @@ export class ClassesService {
     return this.prisma.class.update({
       where: { id },
       data: updateData,
-      include: {
-        subjects: {
-          include: { subject: true },
-        },
-      },
+      include: classInclude,
     });
   }
 
@@ -113,6 +115,62 @@ export class ClassesService {
     return this.prisma.class.delete({
       where: { id },
     });
+  }
+
+  async createLink(classId: string, dto: CreateClassLinkDto) {
+    await this.findOne(classId);
+
+    const url = dto.url.trim();
+
+    return this.prisma.classLink.create({
+      data: {
+        classId,
+        title: dto.title?.trim() || this.titleFromUrl(url),
+        url,
+      },
+    });
+  }
+
+  async updateLink(classId: string, linkId: string, dto: UpdateClassLinkDto) {
+    const link = await this.findLink(classId, linkId);
+
+    return this.prisma.classLink.update({
+      where: { id: link.id },
+      data: {
+        ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
+        ...(dto.url !== undefined ? { url: dto.url.trim() } : {}),
+      },
+    });
+  }
+
+  async removeLink(classId: string, linkId: string) {
+    const link = await this.findLink(classId, linkId);
+
+    return this.prisma.classLink.delete({
+      where: { id: link.id },
+    });
+  }
+
+  private async findLink(classId: string, linkId: string) {
+    await this.findOne(classId);
+
+    const link = await this.prisma.classLink.findUnique({
+      where: { id: linkId },
+    });
+
+    if (!link || link.classId !== classId) {
+      throw new NotFoundException(`Link with ID "${linkId}" not found`);
+    }
+
+    return link;
+  }
+
+  private titleFromUrl(url: string): string {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+      return url;
+    }
   }
 
   private async calculateWeek(classDate: Date): Promise<number> {

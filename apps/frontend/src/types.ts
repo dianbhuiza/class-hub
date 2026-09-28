@@ -11,6 +11,15 @@ export interface ClassSubject {
   subject: Subject;
 }
 
+export interface ClassLink {
+  id: string;
+  classId: string;
+  title: string;
+  url: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ClassItem {
   id: string;
   title: string | null;
@@ -18,6 +27,7 @@ export interface ClassItem {
   date: string;
   week: number;
   subjects: ClassSubject[];
+  links?: ClassLink[];
   createdAt: string;
   updatedAt: string;
 }

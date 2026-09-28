@@ -65,7 +65,9 @@ export class DriveService {
       }
 
       const contentLength = res.headers.get('content-length');
-      const parsedSize = contentLength ? Number.parseInt(contentLength, 10) : NaN;
+      const parsedSize = contentLength
+        ? Number.parseInt(contentLength, 10)
+        : NaN;
 
       return {
         fileId,

@@ -10,6 +10,8 @@ import {
   createClass,
   updateClass,
   deleteClass,
+  createClassLink,
+  deleteClassLink,
 } from '../api';
 import type { Subject, ClassItem } from '../types';
 import { formatClassDate, subjectNamesOf } from '../lib/classFormat';
@@ -40,6 +42,13 @@ export default function Admin() {
   const [editDate, setEditDate] = useState('');
   const [editSubjectIds, setEditSubjectIds] = useState<string[]>([]);
   const [savingClassId, setSavingClassId] = useState<string | null>(null);
+
+  const [draftLinks, setDraftLinks] = useState<{ title: string; url: string }[]>([]);
+  const [draftLinkTitle, setDraftLinkTitle] = useState('');
+  const [draftLinkUrl, setDraftLinkUrl] = useState('');
+  const [editLinkTitle, setEditLinkTitle] = useState('');
+  const [editLinkUrl, setEditLinkUrl] = useState('');
+  const [savingLinkId, setSavingLinkId] = useState<string | null>(null);
 
   const [editMaterials, setEditMaterials] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -130,11 +139,15 @@ export default function Admin() {
         url: classUrl,
         date: classDate,
         subjectIds: classSubjectIds,
+        links: draftLinks,
       });
       setClassTitle('');
       setClassUrl('');
       setClassDate('');
       setClassSubjectIds([]);
+      setDraftLinks([]);
+      setDraftLinkTitle('');
+      setDraftLinkUrl('');
       setFilterSubject('all');
       setFilterWeek('all');
       setMsg('Clase creada correctamente');
@@ -146,12 +159,59 @@ export default function Admin() {
     }
   };
 
+  const addDraftLink = () => {
+    const url = draftLinkUrl.trim();
+    if (!url) return;
+    setDraftLinks((prev) => [...prev, { title: draftLinkTitle.trim(), url }]);
+    setDraftLinkTitle('');
+    setDraftLinkUrl('');
+  };
+
+  const removeDraftLink = (index: number) => {
+    setDraftLinks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddClassLink = async (classId: string) => {
+    const url = editLinkUrl.trim();
+    if (!url) return;
+    setSavingLinkId(classId);
+    try {
+      await createClassLink(classId, {
+        title: editLinkTitle.trim() || undefined,
+        url,
+      });
+      setEditLinkTitle('');
+      setEditLinkUrl('');
+      setMsg('Link añadido a la clase');
+      loadData();
+    } catch (err: any) {
+      setMsg(err.message);
+    } finally {
+      setSavingLinkId(null);
+    }
+  };
+
+  const handleDeleteClassLink = async (classId: string, linkId: string) => {
+    setSavingLinkId(classId);
+    try {
+      await deleteClassLink(classId, linkId);
+      setMsg('Link eliminado');
+      loadData();
+    } catch (err: any) {
+      setMsg(err.message);
+    } finally {
+      setSavingLinkId(null);
+    }
+  };
+
   const startEditClass = (c: ClassItem) => {
     setEditingId(c.id);
     setEditTitle(c.title ?? '');
     setEditUrl(c.url);
     setEditDate(c.date.slice(0, 10));
     setEditSubjectIds(c.subjects.map((s) => s.subject.id));
+    setEditLinkTitle('');
+    setEditLinkUrl('');
   };
 
   const cancelEditClass = () => setEditingId(null);
@@ -329,6 +389,54 @@ export default function Admin() {
                 </label>
               ))}
             </div>
+            <div className="admin-links">
+              <span className="admin-links-label">Links relacionados (opcional)</span>
+              {draftLinks.length > 0 && (
+                <ul className="admin-links-list">
+                  {draftLinks.map((link, i) => (
+                    <li key={`${link.url}-${i}`} className="admin-link-row">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={link.url}
+                      >
+                        {link.title || link.url}
+                      </a>
+                      <button
+                        type="button"
+                        className="btn-danger"
+                        onClick={() => removeDraftLink(i)}
+                      >
+                        Quitar
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="admin-link-add">
+                <input
+                  type="text"
+                  placeholder="Título (opcional)"
+                  value={draftLinkTitle}
+                  onChange={(e) => setDraftLinkTitle(e.target.value)}
+                />
+                <input
+                  type="url"
+                  placeholder="https://…"
+                  value={draftLinkUrl}
+                  onChange={(e) => setDraftLinkUrl(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="btn-save"
+                  disabled={!draftLinkUrl.trim()}
+                  onClick={addDraftLink}
+                >
+                  Añadir
+                </button>
+              </div>
+            </div>
             <button type="submit" disabled={loading}>
               Crear clase
             </button>
@@ -434,6 +542,55 @@ export default function Admin() {
                       </label>
                     ))}
                   </div>
+                  <div className="admin-links">
+                    <span className="admin-links-label">Links relacionados</span>
+                    {(c.links ?? []).length > 0 && (
+                      <ul className="admin-links-list">
+                        {(c.links ?? []).map((link) => (
+                          <li key={link.id} className="admin-link-row">
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title={link.url}
+                            >
+                              {link.title}
+                            </a>
+                            <button
+                              type="button"
+                              className="btn-danger"
+                              disabled={savingLinkId === c.id}
+                              onClick={() => handleDeleteClassLink(c.id, link.id)}
+                            >
+                              Quitar
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="admin-link-add">
+                      <input
+                        type="text"
+                        placeholder="Título (opcional)"
+                        value={editLinkTitle}
+                        onChange={(e) => setEditLinkTitle(e.target.value)}
+                      />
+                      <input
+                        type="url"
+                        placeholder="https://…"
+                        value={editLinkUrl}
+                        onChange={(e) => setEditLinkUrl(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="btn-save"
+                        disabled={!editLinkUrl.trim() || savingLinkId === c.id}
+                        onClick={() => handleAddClassLink(c.id)}
+                      >
+                        {savingLinkId === c.id ? 'Guardando…' : 'Añadir'}
+                      </button>
+                    </div>
+                  </div>
                   <div className="admin-edit-actions">
                     <span className="admin-edit-note">
                       La semana se recalcula según la fecha.
@@ -453,6 +610,11 @@ export default function Admin() {
                     <div className="admin-list-meta">
                       <span className="admin-list-week">Semana {c.week}</span>
                       <span className="admin-list-date">{formatClassDate(c.date)}</span>
+                      {c.links && c.links.length > 0 && (
+                        <span className="admin-list-links">
+                          {c.links.length} link{c.links.length !== 1 ? 's' : ''}
+                        </span>
+                      )}
                     </div>
                     <div className="admin-list-title">
                       {c.title || `Clase · Semana ${c.week}`}
