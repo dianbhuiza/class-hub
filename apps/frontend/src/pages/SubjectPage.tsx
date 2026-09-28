@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getSubject } from '../api';
+import { directUrlFrom } from '../lib/drive';
 import type { ClassItem, SubjectFile, WeekGroup } from '../types';
 import WeekGroupComponent from '../components/WeekGroup';
 
@@ -58,21 +59,26 @@ export default function SubjectPage() {
         <div className="subject-files">
           <span className="subject-files-label">Archivos relacionados</span>
           <ul className="subject-files-list">
-            {files.map((file) => (
-              <li key={file.id}>
-                <a
-                  className="subject-file"
-                  href={file.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={file.url}
-                >
-                  <span className="subject-file-icon" aria-hidden="true">📄</span>
-                  <span className="subject-file-title">{file.title}</span>
-                  <span className="subject-file-arrow" aria-hidden="true">↗</span>
-                </a>
-              </li>
-            ))}
+            {files.map((file) => {
+              const downloadUrl = directUrlFrom(file.url);
+              return (
+                <li key={file.id}>
+                  <a
+                    className="subject-file"
+                    href={downloadUrl || file.url}
+                    target={downloadUrl ? undefined : '_blank'}
+                    rel={downloadUrl ? undefined : 'noopener noreferrer'}
+                    title={file.url}
+                  >
+                    <span className="subject-file-icon" aria-hidden="true">📄</span>
+                    <span className="subject-file-title">{file.title}</span>
+                    <span className="subject-file-arrow" aria-hidden="true">
+                      {downloadUrl ? '↓' : '↗'}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
