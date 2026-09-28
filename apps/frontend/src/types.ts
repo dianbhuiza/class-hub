@@ -3,6 +3,16 @@ export interface Subject {
   name: string;
   img: string | null;
   materialsUrl: string | null;
+  files?: SubjectFile[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubjectFile {
+  id: string;
+  subjectId: string;
+  title: string;
+  url: string;
   createdAt: string;
   updatedAt: string;
 }

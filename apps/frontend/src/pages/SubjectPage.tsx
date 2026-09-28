@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getSubject } from '../api';
-import type { ClassItem, WeekGroup } from '../types';
+import type { ClassItem, SubjectFile, WeekGroup } from '../types';
 import WeekGroupComponent from '../components/WeekGroup';
 
 function groupByWeek(classes: ClassItem[]): WeekGroup[] {
@@ -24,6 +24,7 @@ export default function SubjectPage() {
   const [subjectName, setSubjectName] = useState('');
   const [subjectImg, setSubjectImg] = useState<string | null>(null);
   const [materialsUrl, setMaterialsUrl] = useState<string | null>(null);
+  const [files, setFiles] = useState<SubjectFile[]>([]);
   const [weekGroups, setWeekGroups] = useState<WeekGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +35,7 @@ export default function SubjectPage() {
         setSubjectName(data.name);
         setSubjectImg(data.img);
         setMaterialsUrl(data.materialsUrl);
+        setFiles(data.files ?? []);
         const classes = data.classes.map((c) => c.class);
         setWeekGroups(groupByWeek(classes));
       })
@@ -68,6 +70,28 @@ export default function SubjectPage() {
           </span>
           <span className="subject-materials-arrow" aria-hidden="true">↗</span>
         </a>
+      )}
+      {files.length > 0 && (
+        <div className="subject-files">
+          <span className="subject-files-label">Archivos relacionados</span>
+          <ul className="subject-files-list">
+            {files.map((file) => (
+              <li key={file.id}>
+                <a
+                  className="subject-file"
+                  href={file.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={file.url}
+                >
+                  <span className="subject-file-icon" aria-hidden="true">📄</span>
+                  <span className="subject-file-title">{file.title}</span>
+                  <span className="subject-file-arrow" aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {weekGroups.length === 0 ? (
         <p className="empty">No hay clases registradas para esta asignatura.</p>

@@ -1,4 +1,10 @@
-import type { Subject, ClassItem, ClassFileInfo, ClassLink } from './types';
+import type {
+  Subject,
+  SubjectFile,
+  ClassItem,
+  ClassFileInfo,
+  ClassLink,
+} from './types';
 
 const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
@@ -70,6 +76,7 @@ export const createSubject = (data: {
   name: string;
   img?: string;
   materialsUrl?: string;
+  files?: { title?: string; url: string }[];
 }) =>
   request<Subject>('/subjects', {
     method: 'POST',
@@ -87,6 +94,31 @@ export const updateSubject = (
 
 export const deleteSubject = (id: string) =>
   request<void>(`/subjects/${id}`, {
+    method: 'DELETE',
+  });
+
+// Archivos relacionados con una asignatura
+export const createSubjectFile = (
+  subjectId: string,
+  data: { title?: string; url: string },
+) =>
+  request<SubjectFile>(`/subjects/${subjectId}/files`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateSubjectFile = (
+  subjectId: string,
+  fileId: string,
+  data: { title?: string; url?: string },
+) =>
+  request<SubjectFile>(`/subjects/${subjectId}/files/${fileId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+export const deleteSubjectFile = (subjectId: string, fileId: string) =>
+  request<void>(`/subjects/${subjectId}/files/${fileId}`, {
     method: 'DELETE',
   });
 

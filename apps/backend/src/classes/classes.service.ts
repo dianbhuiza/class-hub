@@ -4,6 +4,7 @@ import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { CreateClassLinkDto } from './dto/create-class-link.dto';
 import { UpdateClassLinkDto } from './dto/update-class-link.dto';
+import { titleFromUrl } from '../common/url.util';
 
 const classInclude = {
   subjects: {
@@ -68,7 +69,7 @@ export class ClassesService {
         },
         links: {
           create: links.map((link) => ({
-            title: link.title?.trim() || this.titleFromUrl(link.url),
+            title: link.title?.trim() || titleFromUrl(link.url),
             url: link.url,
           })),
         },
@@ -125,7 +126,7 @@ export class ClassesService {
     return this.prisma.classLink.create({
       data: {
         classId,
-        title: dto.title?.trim() || this.titleFromUrl(url),
+        title: dto.title?.trim() || titleFromUrl(url),
         url,
       },
     });
@@ -163,14 +164,6 @@ export class ClassesService {
     }
 
     return link;
-  }
-
-  private titleFromUrl(url: string): string {
-    try {
-      return new URL(url).hostname.replace(/^www\./, '');
-    } catch {
-      return url;
-    }
   }
 
   private async calculateWeek(classDate: Date): Promise<number> {

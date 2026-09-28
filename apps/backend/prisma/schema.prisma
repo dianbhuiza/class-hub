@@ -24,6 +24,19 @@ model Subject {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   classes      ClassSubject[]
+  files        SubjectFile[]
+}
+
+model SubjectFile {
+  id        String   @id @default(uuid())
+  subjectId String
+  title     String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([subjectId])
 }
 
 model Class {
