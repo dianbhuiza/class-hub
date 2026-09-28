@@ -24,6 +24,7 @@ model Subject {
   updatedAt    DateTime       @updatedAt
   classes      ClassSubject[]
   files        SubjectFile[]
+  classLinks   ClassLink[]
 }
 
 model SubjectFile {
@@ -53,13 +54,16 @@ model Class {
 model ClassLink {
   id        String   @id @default(uuid())
   classId   String
+  subjectId String?
   title     String
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject   Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
 
   @@index([classId])
+  @@index([subjectId])
 }
 
 model ClassSubject {

@@ -8,4 +8,8 @@ export class CreateClassLinkDto {
 
   @IsUrl()
   url: string;
+
+  @IsOptional()
+  @IsString()
+  subjectId?: string;
 }

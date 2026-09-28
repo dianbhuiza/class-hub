@@ -69,7 +69,13 @@ export default function AdminClasses() {
       type: 'class',
       id: c.id,
       label: labelOf(c),
-      files: (c.links ?? []).map((link) => ({ id: link.id, title: link.title, url: link.url })),
+      subjects: c.subjects.map((cs) => cs.subject),
+      files: (c.links ?? []).map((link) => ({
+        id: link.id,
+        title: link.title,
+        url: link.url,
+        subjectId: link.subjectId ?? null,
+      })),
     });
 
   const handleSaved = (message: string) => {

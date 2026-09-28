@@ -23,6 +23,8 @@ export interface ClassSubject {
 export interface ClassLink {
   id: string;
   classId: string;
+  subjectId: string | null;
+  subject?: Subject | null;
   title: string;
   url: string;
   createdAt: string;

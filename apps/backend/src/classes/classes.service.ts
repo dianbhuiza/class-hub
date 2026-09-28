@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
@@ -12,6 +16,7 @@ const classInclude = {
   },
   links: {
     orderBy: { createdAt: 'asc' as const },
+    include: { subject: true },
   },
 } as const;
 
@@ -71,6 +76,10 @@ export class ClassesService {
           create: links.map((link) => ({
             title: link.title?.trim() || titleFromUrl(link.url),
             url: link.url,
+            subjectId: this.resolveLinkSubjectId(
+              dto.subjectIds,
+              link.subjectId,
+            ),
           })),
         },
       },
@@ -103,11 +112,20 @@ export class ClassesService {
       };
     }
 
-    return this.prisma.class.update({
+    const saved = await this.prisma.class.update({
       where: { id },
       data: updateData,
       include: classInclude,
     });
+
+    if (dto.subjectIds) {
+      await this.syncLinkSubjects(
+        saved.id,
+        saved.subjects.map((cs) => cs.subject.id),
+      );
+    }
+
+    return saved;
   }
 
   async remove(id: string) {
@@ -119,8 +137,7 @@ export class ClassesService {
   }
 
   async createLink(classId: string, dto: CreateClassLinkDto) {
-    await this.findOne(classId);
-
+    const classItem = await this.findOne(classId);
     const url = dto.url.trim();
 
     return this.prisma.classLink.create({
@@ -128,19 +145,40 @@ export class ClassesService {
         classId,
         title: dto.title?.trim() || titleFromUrl(url),
         url,
+        subjectId: this.resolveLinkSubjectId(
+          this.subjectIdsOf(classItem),
+          dto.subjectId,
+        ),
       },
+      include: { subject: true },
     });
   }
 
   async updateLink(classId: string, linkId: string, dto: UpdateClassLinkDto) {
     const link = await this.findLink(classId, linkId);
 
+    let subjectId: string | null | undefined;
+
+    if (dto.subjectId !== undefined) {
+      if (dto.subjectId === null) {
+        subjectId = null;
+      } else {
+        const classItem = await this.findOne(classId);
+        subjectId = this.resolveLinkSubjectId(
+          this.subjectIdsOf(classItem),
+          dto.subjectId,
+        );
+      }
+    }
+
     return this.prisma.classLink.update({
       where: { id: link.id },
       data: {
         ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
         ...(dto.url !== undefined ? { url: dto.url.trim() } : {}),
+        ...(subjectId !== undefined ? { subjectId } : {}),
       },
+      include: { subject: true },
     });
   }
 
@@ -164,6 +202,49 @@ export class ClassesService {
     }
 
     return link;
+  }
+
+  private subjectIdsOf(classItem: {
+    subjects: { subject: { id: string } }[];
+  }): string[] {
+    return classItem.subjects.map((cs) => cs.subject.id);
+  }
+
+  private resolveLinkSubjectId(
+    classSubjectIds: string[],
+    requested?: string | null,
+  ): string | null {
+    if (requested !== undefined && requested !== null) {
+      if (!classSubjectIds.includes(requested)) {
+        throw new BadRequestException(
+          'La asignatura indicada no pertenece a esta clase',
+        );
+      }
+      return requested;
+    }
+
+    return classSubjectIds.length === 1 ? (classSubjectIds[0] ?? null) : null;
+  }
+
+  private async syncLinkSubjects(classId: string, subjectIds: string[]) {
+    const single = subjectIds.length === 1 ? (subjectIds[0] ?? null) : null;
+    const links = await this.prisma.classLink.findMany({
+      where: { classId },
+      select: { id: true, subjectId: true },
+    });
+
+    const stale = links.filter((link) => {
+      if (single !== null) return link.subjectId !== single;
+      if (subjectIds.length === 0) return link.subjectId !== null;
+      return link.subjectId !== null && !subjectIds.includes(link.subjectId);
+    });
+
+    for (const link of stale) {
+      await this.prisma.classLink.update({
+        where: { id: link.id },
+        data: { subjectId: single },
+      });
+    }
   }
 
   private async calculateWeek(classDate: Date): Promise<number> {

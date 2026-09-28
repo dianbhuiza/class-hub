@@ -501,6 +501,20 @@ body::before {
   font-weight: 500;
 }
 
+.class-link-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.class-link-group-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--gold);
+}
+
 /* ===== DOWNLOAD BUTTON ===== */
 .download-btn {
   display: inline-flex;
@@ -1646,6 +1660,18 @@ body::before {
 }
 
 .adm-file-arrow { color: var(--adm-gold-text); flex-shrink: 0; }
+
+.adm-file-subject {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--adm-line-strong);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--adm-ink-soft);
+  white-space: nowrap;
+}
 
 .adm-remove {
   flex-shrink: 0;

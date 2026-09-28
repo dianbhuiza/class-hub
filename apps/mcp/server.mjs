@@ -88,7 +88,12 @@ const classSummary = (c) => ({
   title: c.title ?? null,
   url: c.url,
   subjects: (c.subjects ?? []).map((cs) => cs.subject.name),
-  links: (c.links ?? []).map((l) => ({ id: l.id, title: l.title, url: l.url })),
+  links: (c.links ?? []).map((l) => ({
+    id: l.id,
+    title: l.title,
+    url: l.url,
+    subject: l.subject?.name ?? null,
+  })),
 });
 
 /* ---------- esquemas reutilizables ---------- */
@@ -326,12 +331,19 @@ server.registerTool(
       classId: z.string().min(1).describe('Id de la clase.'),
       url: urlField.describe('URL del archivo en Drive.'),
       title: z.string().max(120).optional().describe('Título opcional (si se omite se usa el dominio).'),
+      subject: z
+        .string()
+        .optional()
+        .describe(
+          'Asignatura (nombre o id) a la que pertenece el archivo. Si se omite y la clase tiene una sola asignatura, se asigna automáticamente.',
+        ),
     },
   },
-  async ({ classId, url, title }) =>
+  async ({ classId, url, title, subject }) =>
     run(async () => {
       const body = { url };
       if (title) body.title = title;
+      if (subject) body.subjectId = (await resolveSubjectIds([subject]))[0];
       const link = await api.post(`/classes/${classId}/links`, body);
       return { added: link };
     }),
@@ -341,19 +353,27 @@ server.registerTool(
   'update_class_link',
   {
     title: 'Editar archivo de una clase',
-    description: 'Modifica el título o la URL de un archivo ya adjunto a una clase.',
+    description: 'Modifica el título, la URL o la asignatura de un archivo ya adjunto a una clase.',
     inputSchema: {
       classId: z.string().min(1).describe('Id de la clase.'),
       linkId: z.string().min(1).describe('Id del archivo (lo devuelve list_classes).'),
       url: urlField.optional(),
       title: z.string().max(120).optional(),
+      subject: z
+        .string()
+        .nullable()
+        .optional()
+        .describe('Asignatura (nombre o id). null para quitarle la asignatura.'),
     },
   },
-  async ({ classId, linkId, url, title }) =>
+  async ({ classId, linkId, url, title, subject }) =>
     run(async () => {
       const body = {};
       if (url !== undefined) body.url = url;
       if (title !== undefined) body.title = title;
+      if (subject !== undefined) {
+        body.subjectId = subject === null ? null : (await resolveSubjectIds([subject]))[0];
+      }
       const link = await api.patch(`/classes/${classId}/links/${linkId}`, body);
       return { updated: link };
     }),

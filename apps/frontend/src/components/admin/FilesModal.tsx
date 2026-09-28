@@ -6,11 +6,13 @@ import {
   deleteClassLink,
   deleteSubjectFile,
 } from '../../api';
+import type { Subject } from '../../types';
 
 export interface FileEntry {
   id: string;
   title: string;
   url: string;
+  subjectId?: string | null;
 }
 
 export interface FilesRecord {
@@ -18,6 +20,7 @@ export interface FilesRecord {
   id: string;
   label: string;
   files: FileEntry[];
+  subjects?: Subject[];
 }
 
 interface FilesModalProps {
@@ -36,13 +39,20 @@ interface FilesPanelProps {
 interface DraftRow {
   title: string;
   url: string;
+  subjectId: string;
 }
 
-const emptyRow = (): DraftRow => ({ title: '', url: '' });
+const emptyRow = (subjectId = ''): DraftRow => ({ title: '', url: '', subjectId });
 
 function FilesPanel({ record, onClose, onChanged }: FilesPanelProps) {
+  const classSubjects = record.type === 'class' ? (record.subjects ?? []) : [];
+  const pickSubject = classSubjects.length > 1;
+  const defaultSubjectId = classSubjects[0]?.id ?? '';
+  const subjectNameOf = (subjectId?: string | null) =>
+    classSubjects.find((subject) => subject.id === subjectId)?.name ?? 'Sin asignatura';
+
   const [files, setFiles] = useState<FileEntry[]>(record.files);
-  const [rows, setRows] = useState<DraftRow[]>([emptyRow()]);
+  const [rows, setRows] = useState<DraftRow[]>([emptyRow(defaultSubjectId)]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [saving, setSaving] = useState(false);
@@ -67,7 +77,11 @@ function FilesPanel({ record, onClose, onChanged }: FilesPanelProps) {
     try {
       const created: FileEntry[] = [];
       for (const row of pending) {
-        const data = { title: row.title.trim() || undefined, url: row.url.trim() };
+        const data = {
+          title: row.title.trim() || undefined,
+          url: row.url.trim(),
+          ...(record.type === 'class' && row.subjectId ? { subjectId: row.subjectId } : {}),
+        };
         const file =
           record.type === 'class'
             ? await createClassLink(record.id, data)
@@ -76,7 +90,7 @@ function FilesPanel({ record, onClose, onChanged }: FilesPanelProps) {
       }
 
       setFiles((prev) => [...prev, ...created]);
-      setRows([emptyRow()]);
+      setRows([emptyRow(defaultSubjectId)]);
       const message = `${created.length} archivo${created.length !== 1 ? 's' : ''} agregado${created.length !== 1 ? 's' : ''}`;
       setNotice(message);
       onChanged(message);
@@ -124,6 +138,9 @@ function FilesPanel({ record, onClose, onChanged }: FilesPanelProps) {
               <li key={file.id} className="adm-file">
                 <a href={file.url} target="_blank" rel="noopener noreferrer" title={file.url}>
                   <span className="adm-file-title">{file.title}</span>
+                  {pickSubject && (
+                    <span className="adm-file-subject">{subjectNameOf(file.subjectId)}</span>
+                  )}
                   <span className="adm-file-arrow" aria-hidden="true">
                     ↗
                   </span>
@@ -175,6 +192,22 @@ function FilesPanel({ record, onClose, onChanged }: FilesPanelProps) {
                     autoComplete="off"
                   />
                 </div>
+                {pickSubject && (
+                  <div className="adm-field">
+                    <label htmlFor={`adm-file-subject-${index}`}>Asignatura</label>
+                    <select
+                      id={`adm-file-subject-${index}`}
+                      value={row.subjectId}
+                      onChange={(e) => updateRow(index, { subjectId: e.target.value })}
+                    >
+                      {classSubjects.map((subject) => (
+                        <option key={subject.id} value={subject.id}>
+                          {subject.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
               {rows.length > 1 && (
                 <button
@@ -193,7 +226,7 @@ function FilesPanel({ record, onClose, onChanged }: FilesPanelProps) {
         <button
           type="button"
           className="adm-btn adm-btn--dashed"
-          onClick={() => setRows((prev) => [...prev, emptyRow()])}
+          onClick={() => setRows((prev) => [...prev, emptyRow(defaultSubjectId)])}
         >
           + Agregar otro archivo
         </button>

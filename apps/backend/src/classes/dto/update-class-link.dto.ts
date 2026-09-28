@@ -9,4 +9,8 @@ export class UpdateClassLinkDto {
   @IsOptional()
   @IsUrl()
   url?: string;
+
+  @IsOptional()
+  @IsString()
+  subjectId?: string | null;
 }

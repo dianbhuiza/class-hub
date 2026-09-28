@@ -1,4 +1,4 @@
-import type { ClassItem as ClassItemType } from '../types';
+import type { ClassItem as ClassItemType, ClassLink } from '../types';
 import { formatClassDate, primaryLabel } from '../lib/classFormat';
 import { useClassFileInfo } from '../hooks/useClassFileInfo';
 import { directUrlFrom, formatBytes } from '../lib/drive';
@@ -9,6 +9,27 @@ interface ClassItemProps {
   index: number;
 }
 
+function groupLinks(item: ClassItemType, links: ClassLink[]) {
+  const groups = item.subjects
+    .map((cs) => ({
+      name: cs.subject.name,
+      links: links.filter((link) => link.subjectId === cs.subject.id),
+    }))
+    .filter((group) => group.links.length > 0);
+
+  const rest = links.filter(
+    (link) =>
+      !link.subjectId ||
+      !item.subjects.some((cs) => cs.subject.id === link.subjectId),
+  );
+
+  if (rest.length > 0) {
+    groups.push({ name: 'Sin asignatura', links: rest });
+  }
+
+  return groups;
+}
+
 export default function ClassItem({ item, index }: ClassItemProps) {
   const roman = index === 0 ? 'I' : 'II';
   const info = useClassFileInfo(item.id, true);
@@ -16,6 +37,22 @@ export default function ClassItem({ item, index }: ClassItemProps) {
   const customTitle = item.title?.trim();
   const href = info?.downloadUrl ?? directUrlFrom(item.url);
   const links = item.links ?? [];
+  const linkGroups = groupLinks(item, links);
+
+  const renderLink = (link: ClassLink) => (
+    <li key={link.id}>
+      <a
+        className="class-link"
+        href={link.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={link.url}
+      >
+        <span className="class-link-icon" aria-hidden="true">↗</span>
+        <span className="class-link-title">{link.title}</span>
+      </a>
+    </li>
+  );
 
   return (
     <div className="class-item">
@@ -36,22 +73,16 @@ export default function ClassItem({ item, index }: ClassItemProps) {
       {links.length > 0 && (
         <div className="class-item-links">
           <span className="class-item-links-label">Links relacionados</span>
-          <ul className="class-links">
-            {links.map((link) => (
-              <li key={link.id}>
-                <a
-                  className="class-link"
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={link.url}
-                >
-                  <span className="class-link-icon" aria-hidden="true">↗</span>
-                  <span className="class-link-title">{link.title}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          {linkGroups.length > 1 ? (
+            linkGroups.map((group, groupIndex) => (
+              <div className="class-link-group" key={`${group.name}-${groupIndex}`}>
+                <span className="class-link-group-title">{group.name}</span>
+                <ul className="class-links">{group.links.map(renderLink)}</ul>
+              </div>
+            ))
+          ) : (
+            <ul className="class-links">{links.map(renderLink)}</ul>
+          )}
         </div>
       )}
       <div className="class-item-footer">
@@ -69,6 +100,7 @@ export default function ClassItem({ item, index }: ClassItemProps) {
           href={href}
           filename={info?.filename}
           sizeBytes={info?.sizeBytes}
+          contentType={info?.contentType}
         />
       </div>
     </div>

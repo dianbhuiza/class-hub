@@ -152,7 +152,7 @@ export const deleteClass = (id: string) =>
 // Links relacionados con una clase
 export const createClassLink = (
   classId: string,
-  data: { title?: string; url: string },
+  data: { title?: string; url: string; subjectId?: string },
 ) =>
   request<ClassLink>(`/classes/${classId}/links`, {
     method: 'POST',
@@ -162,7 +162,7 @@ export const createClassLink = (
 export const updateClassLink = (
   classId: string,
   linkId: string,
-  data: { title?: string; url?: string },
+  data: { title?: string; url?: string; subjectId?: string | null },
 ) =>
   request<ClassLink>(`/classes/${classId}/links/${linkId}`, {
     method: 'PATCH',
