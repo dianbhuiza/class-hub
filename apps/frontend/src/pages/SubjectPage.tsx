@@ -23,6 +23,7 @@ export default function SubjectPage() {
   const { id } = useParams<{ id: string }>();
   const [subjectName, setSubjectName] = useState('');
   const [subjectImg, setSubjectImg] = useState<string | null>(null);
+  const [materialsUrl, setMaterialsUrl] = useState<string | null>(null);
   const [weekGroups, setWeekGroups] = useState<WeekGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,6 +33,7 @@ export default function SubjectPage() {
       .then((data) => {
         setSubjectName(data.name);
         setSubjectImg(data.img);
+        setMaterialsUrl(data.materialsUrl);
         const classes = data.classes.map((c) => c.class);
         setWeekGroups(groupByWeek(classes));
       })
@@ -51,18 +53,28 @@ export default function SubjectPage() {
             {weekGroups.length} semana{weekGroups.length !== 1 ? 's' : ''}
           </p>
         </div>
-        {weekGroups.length > 0 && (
-          <Link to={`/subject/${id}/playlist`} className="btn-playlist">
-            ▶ Ver playlist
-          </Link>
-        )}
       </div>
+      {materialsUrl && (
+        <a
+          className="subject-materials"
+          href={materialsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="subject-materials-icon" aria-hidden="true">📂</span>
+          <span className="subject-materials-text">
+            <strong>Materiales del curso</strong>
+            <span>Apuntes, guías y recursos compartidos en Google Drive</span>
+          </span>
+          <span className="subject-materials-arrow" aria-hidden="true">↗</span>
+        </a>
+      )}
       {weekGroups.length === 0 ? (
         <p className="empty">No hay clases registradas para esta asignatura.</p>
       ) : (
         <div className="subject-classes">
           {weekGroups.map((group) => (
-            <WeekGroupComponent key={group.week} group={group} subjectId={id} />
+            <WeekGroupComponent key={group.week} group={group} />
           ))}
         </div>
       )}

@@ -49,7 +49,11 @@ export class SubjectsService {
     }
 
     return this.prisma.subject.create({
-      data: { name: dto.name },
+      data: {
+        name: dto.name,
+        img: dto.img || null,
+        materialsUrl: dto.materialsUrl || null,
+      },
     });
   }
 
@@ -68,7 +72,13 @@ export class SubjectsService {
 
     return this.prisma.subject.update({
       where: { id },
-      data: dto,
+      data: {
+        ...(dto.name !== undefined ? { name: dto.name } : {}),
+        ...(dto.img !== undefined ? { img: dto.img || null } : {}),
+        ...(dto.materialsUrl !== undefined
+          ? { materialsUrl: dto.materialsUrl || null }
+          : {}),
+      },
     });
   }
 

@@ -17,12 +17,13 @@ model User {
 }
 
 model Subject {
-  id        String         @id @default(uuid())
-  name      String         @unique
-  img       String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  classes   ClassSubject[]
+  id           String         @id @default(uuid())
+  name         String         @unique
+  img          String?
+  materialsUrl String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  classes      ClassSubject[]
 }
 
 model Class {

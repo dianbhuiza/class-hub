@@ -2,6 +2,7 @@ export interface Subject {
   id: string;
   name: string;
   img: string | null;
+  materialsUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }

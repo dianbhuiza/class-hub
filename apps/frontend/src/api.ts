@@ -66,10 +66,23 @@ export const getMe = () =>
   request<{ user: { id: string; email: string; name: string | null } | null }>('/auth/me');
 
 // Admin
-export const createSubject = (name: string, img?: string) =>
+export const createSubject = (data: {
+  name: string;
+  img?: string;
+  materialsUrl?: string;
+}) =>
   request<Subject>('/subjects', {
     method: 'POST',
-    body: JSON.stringify({ name, img }),
+    body: JSON.stringify(data),
+  });
+
+export const updateSubject = (
+  id: string,
+  data: { name?: string; img?: string | null; materialsUrl?: string | null },
+) =>
+  request<Subject>(`/subjects/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
   });
 
 export const deleteSubject = (id: string) =>
@@ -82,6 +95,15 @@ export const createClass = (
 ) =>
   request<ClassItem>('/classes', {
     method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const updateClass = (
+  id: string,
+  data: { title?: string; url?: string; date?: string; subjectIds?: string[] },
+) =>
+  request<ClassItem>(`/classes/${id}`, {
+    method: 'PATCH',
     body: JSON.stringify(data),
   });
 

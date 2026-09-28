@@ -10,8 +10,14 @@ export function primaryLabel(cls: ClassItem): string {
   return `${subjects || 'Clase'} · Semana ${cls.week}`;
 }
 
+function parseDate(dateStr: string): Date {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr);
+  if (!m) return new Date(dateStr);
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+}
+
 export function formatClassDate(dateStr: string): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('es-PE', {
+  return parseDate(dateStr).toLocaleDateString('es-PE', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -19,7 +25,7 @@ export function formatClassDate(dateStr: string): string {
 }
 
 export function formatLongDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('es-PE', {
+  return parseDate(dateStr).toLocaleDateString('es-PE', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

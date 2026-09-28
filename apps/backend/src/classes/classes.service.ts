@@ -76,7 +76,7 @@ export class ClassesService {
 
     const updateData: any = {};
 
-    if (dto.title) updateData.title = dto.title;
+    if (dto.title !== undefined) updateData.title = dto.title || null;
     if (dto.url) updateData.url = dto.url;
 
     if (dto.date) {
