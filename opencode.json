@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "classhub": {
+      "type": "local",
+      "command": ["node", "apps/mcp/server.mjs"],
+      "cwd": ".",
+      "enabled": true,
+      "timeout": 15000,
+      "environment": {
+        "CLASSHUB_API_URL": "https://class-hub-back.onrender.com/api"
+      }
+    }
+  }
+}
