@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { deleteClass, getClasses, getSubjects } from '../../api';
 import type { ClassItem, Subject } from '../../types';
-import { formatClassDate } from '../../lib/classFormat';
+import { formatClassDate, primaryLabel } from '../../lib/classFormat';
 import ClassFormModal from '../../components/admin/ClassFormModal';
 import FilesModal, { type FilesRecord } from '../../components/admin/FilesModal';
 
@@ -52,7 +52,7 @@ export default function AdminClasses() {
     });
   }, [classes, week, subjectId]);
 
-  const labelOf = (c: ClassItem) => c.title || `Clase · semana ${c.week}`;
+  const labelOf = (c: ClassItem) => c.title?.trim() || primaryLabel(c);
 
   const openCreate = () => {
     setEditing(null);
