@@ -2,10 +2,9 @@ export interface Subject {
   id: string;
   name: string;
   img: string | null;
-  materialsUrl: string | null;
-  files?: SubjectFile[];
   createdAt: string;
   updatedAt: string;
+  files?: SubjectFile[];
 }
 
 export interface SubjectFile {

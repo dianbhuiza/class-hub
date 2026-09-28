@@ -20,10 +20,6 @@ export class CreateSubjectDto {
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
   img?: string;
 
-  @ValidateIf(hasValue)
-  @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
-  materialsUrl?: string;
-
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

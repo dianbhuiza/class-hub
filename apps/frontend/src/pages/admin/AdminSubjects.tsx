@@ -106,23 +106,11 @@ export default function AdminSubjects() {
               </span>
 
               <div className="adm-row-main">
-                {(s.files?.length ?? 0) > 0 || s.materialsUrl ? (
+                {(s.files?.length ?? 0) > 0 ? (
                   <div className="adm-row-meta">
-                    {(s.files?.length ?? 0) > 0 && (
-                      <span className="adm-chip adm-chip--sage">
-                        {s.files!.length} archivo{s.files!.length !== 1 ? 's' : ''}
-                      </span>
-                    )}
-                    {s.materialsUrl && (
-                      <a
-                        className="adm-chip adm-chip--link"
-                        href={s.materialsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Materiales ↗
-                      </a>
-                    )}
+                    <span className="adm-chip adm-chip--sage">
+                      {s.files!.length} archivo{s.files!.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
                 ) : null}
 

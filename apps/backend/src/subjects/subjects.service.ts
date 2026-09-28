@@ -68,7 +68,6 @@ export class SubjectsService {
       data: {
         name: dto.name,
         img: dto.img || null,
-        materialsUrl: dto.materialsUrl || null,
         files: {
           create: files.map((file) => ({
             title: file.title?.trim() || titleFromUrl(file.url),
@@ -98,9 +97,6 @@ export class SubjectsService {
       data: {
         ...(dto.name !== undefined ? { name: dto.name } : {}),
         ...(dto.img !== undefined ? { img: dto.img || null } : {}),
-        ...(dto.materialsUrl !== undefined
-          ? { materialsUrl: dto.materialsUrl || null }
-          : {}),
       },
       include: filesInclude,
     });

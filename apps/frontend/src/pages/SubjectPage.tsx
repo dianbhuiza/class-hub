@@ -23,7 +23,6 @@ export default function SubjectPage() {
   const { id } = useParams<{ id: string }>();
   const [subjectName, setSubjectName] = useState('');
   const [subjectImg, setSubjectImg] = useState<string | null>(null);
-  const [materialsUrl, setMaterialsUrl] = useState<string | null>(null);
   const [files, setFiles] = useState<SubjectFile[]>([]);
   const [weekGroups, setWeekGroups] = useState<WeekGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +33,6 @@ export default function SubjectPage() {
       .then((data) => {
         setSubjectName(data.name);
         setSubjectImg(data.img);
-        setMaterialsUrl(data.materialsUrl);
         setFiles(data.files ?? []);
         const classes = data.classes.map((c) => c.class);
         setWeekGroups(groupByWeek(classes));
@@ -56,21 +54,6 @@ export default function SubjectPage() {
           </p>
         </div>
       </div>
-      {materialsUrl && (
-        <a
-          className="subject-materials"
-          href={materialsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span className="subject-materials-icon" aria-hidden="true">📂</span>
-          <span className="subject-materials-text">
-            <strong>Materiales del curso</strong>
-            <span>Apuntes, guías y recursos compartidos en Google Drive</span>
-          </span>
-          <span className="subject-materials-arrow" aria-hidden="true">↗</span>
-        </a>
-      )}
       {files.length > 0 && (
         <div className="subject-files">
           <span className="subject-files-label">Archivos relacionados</span>

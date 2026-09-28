@@ -19,7 +19,6 @@ interface SubjectFormProps {
 function SubjectForm({ item, onClose, onSaved }: SubjectFormProps) {
   const [name, setName] = useState(item?.name ?? '');
   const [img, setImg] = useState(item?.img ?? '');
-  const [materials, setMaterials] = useState(item?.materialsUrl ?? '');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -32,14 +31,12 @@ function SubjectForm({ item, onClose, onSaved }: SubjectFormProps) {
         await updateSubject(item.id, {
           name: name.trim(),
           img: img.trim() || null,
-          materialsUrl: materials.trim() || null,
         });
         onSaved('Asignatura actualizada correctamente');
       } else {
         await createSubject({
           name: name.trim(),
           img: img.trim() || undefined,
-          materialsUrl: materials.trim() || undefined,
         });
         onSaved('Asignatura creada correctamente');
       }
@@ -78,19 +75,6 @@ function SubjectForm({ item, onClose, onSaved }: SubjectFormProps) {
           placeholder="https://… (opcional)"
           autoComplete="off"
         />
-      </div>
-
-      <div className="adm-field">
-        <label htmlFor="adm-subject-materials">Carpeta de materiales</label>
-        <input
-          id="adm-subject-materials"
-          type="url"
-          value={materials}
-          onChange={(e) => setMaterials(e.target.value)}
-          placeholder="https://drive.google.com/… (opcional)"
-          autoComplete="off"
-        />
-        <span className="adm-hint">Se muestra como acceso directo en la página pública.</span>
       </div>
 
       {error && (

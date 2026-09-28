@@ -75,7 +75,6 @@ export const getMe = () =>
 export const createSubject = (data: {
   name: string;
   img?: string;
-  materialsUrl?: string;
   files?: { title?: string; url: string }[];
 }) =>
   request<Subject>('/subjects', {
@@ -85,7 +84,7 @@ export const createSubject = (data: {
 
 export const updateSubject = (
   id: string,
-  data: { name?: string; img?: string | null; materialsUrl?: string | null },
+  data: { name?: string; img?: string | null },
 ) =>
   request<Subject>(`/subjects/${id}`, {
     method: 'PATCH',

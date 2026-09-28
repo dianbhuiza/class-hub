@@ -11,8 +11,4 @@ export class UpdateSubjectDto {
   @ValidateIf(hasValue)
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
   img?: string | null;
-
-  @ValidateIf(hasValue)
-  @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
-  materialsUrl?: string | null;
 }

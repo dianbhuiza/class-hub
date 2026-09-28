@@ -78,7 +78,6 @@ const subjectSummary = (s) => ({
   id: s.id,
   name: s.name,
   img: s.img ?? null,
-  materialsUrl: s.materialsUrl ?? null,
   files: (s.files ?? []).map((f) => ({ id: f.id, title: f.title, url: f.url })),
 });
 
@@ -123,7 +122,7 @@ server.registerTool(
   {
     title: 'Listar asignaturas',
     description:
-      'Devuelve todas las asignaturas del catálogo con su id, nombre, carpeta de materiales y archivos adjuntos (con sus ids). Usá los ids para las demás tools.',
+      'Devuelve todas las asignaturas del catálogo con su id, nombre y archivos adjuntos (con sus ids). Usá los ids para las demás tools.',
     inputSchema: {},
   },
   async () =>
@@ -189,18 +188,16 @@ server.registerTool(
     inputSchema: {
       name: z.string().min(1).describe('Nombre de la asignatura (ej. "Física").'),
       img: urlField.optional().describe('URL de la imagen de portada.'),
-      materialsUrl: urlField.optional().describe('URL de la carpeta de materiales en Drive.'),
       files: z
         .array(linkField)
         .optional()
         .describe('Archivos iniciales: [{ title?, url }].'),
     },
   },
-  async ({ name, img, materialsUrl, files }) =>
+  async ({ name, img, files }) =>
     run(async () => {
       const body = { name };
       if (img) body.img = img;
-      if (materialsUrl) body.materialsUrl = materialsUrl;
       if (files?.length) body.files = files;
       const created = await api.post('/subjects', body);
       return { created: subjectSummary(created) };
@@ -212,23 +209,18 @@ server.registerTool(
   {
     title: 'Editar asignatura',
     description:
-      'Edita una asignatura existente. Solo se envían los campos indicados; enviá null para vaciar img o materialsUrl.',
+      'Edita una asignatura existente. Solo se envían los campos indicados; enviá null para vaciar img.',
     inputSchema: {
       id: z.string().min(1).describe('Id de la asignatura.'),
       name: z.string().min(1).optional().describe('Nuevo nombre.'),
       img: urlField.nullable().optional().describe('Nueva imagen de portada (null para vaciar).'),
-      materialsUrl: urlField
-        .nullable()
-        .optional()
-        .describe('Nueva carpeta de materiales (null para vaciar).'),
     },
   },
-  async ({ id, name, img, materialsUrl }) =>
+  async ({ id, name, img }) =>
     run(async () => {
       const body = {};
       if (name !== undefined) body.name = name;
       if (img !== undefined) body.img = img;
-      if (materialsUrl !== undefined) body.materialsUrl = materialsUrl;
       const updated = await api.patch(`/subjects/${id}`, body);
       return { updated: subjectSummary(updated) };
     }),
